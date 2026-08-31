@@ -12,6 +12,10 @@
 
     let game = null;
 
+    /* Se detecta el tactil ANTES de construir el juego: asi la calidad
+       de render y el DPR ya estan ajustados en el primer nivel. */
+    const touch = new VW.TouchControls(input);
+
     const ui = new VW.UI({
       onStart: () => { audio.unlock(); game.startRun(); },
       onRetry: () => { audio.unlock(); game.restartLevel(); },
@@ -24,7 +28,12 @@
     /* El audio necesita un gesto real del usuario para iniciarse. */
     input.onFirstKey = () => audio.unlock();
 
-    /* Un solo listener de resize para toda la sesion. */
+    /* Un solo observador de tamano para toda la sesion. ResizeObserver
+       cubre tambien el caso de un contenedor que aun no tenia medidas
+       (por ejemplo si el canvas se muestra despues de cargar). */
+    if (window.ResizeObserver) {
+      new ResizeObserver(() => game.resize()).observe(canvas);
+    }
     window.addEventListener('resize', () => game.resize());
 
     /* Al perder el foco se pausa: nadie muere mirando otra ventana. */
@@ -34,6 +43,7 @@
 
     /* Punto de inspeccion para depuracion manual desde la consola. */
     VW.instance = game;
+    VW.touch = touch;
   }
 
   if (document.readyState === 'loading') {

@@ -3,6 +3,10 @@
    ============================================================ */
 window.VW = window.VW || {};
 
+/* Calidad de render. La capa tactil la baja en moviles antes de que
+   el juego se construya (menos estrellas, menos rastro, menos DPR). */
+window.VW.QUALITY = { stars: 1, trail: 0.018, dprCap: 2 };
+
 (function (VW) {
   'use strict';
 

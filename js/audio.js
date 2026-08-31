@@ -91,6 +91,8 @@
     rageOn() { this.tone(110, 900, 0.55, 'sawtooth', 0.15); this.noise(0.5, 320, 0.8, 0.16); }
     rageOff() { this.tone(700, 110, 0.5, 'sawtooth', 0.11); }
     devour() { this.tone(80, 440, 0.75, 'square', 0.17); this.noise(0.85, 170, 0.6, 0.26); }
+    /* Golpe que el jefe final aguanta: impacto seco, sin resolucion. */
+    bossHit() { this.tone(150, 70, 0.35, 'square', 0.16); this.noise(0.4, 260, 0.9, 0.24); }
     death() { this.tone(230, 40, 0.9, 'sawtooth', 0.2); this.noise(0.7, 120, 0.5, 0.26); }
     levelUp() { this.arp([523, 659, 784, 1046], 0.09, 0.16, 'sine', 0.13); }
     victory() { this.arp([523, 659, 784, 1046, 1318, 1568], 0.14, 0.3, 'triangle', 0.14); }

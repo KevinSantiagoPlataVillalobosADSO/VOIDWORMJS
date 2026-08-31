@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
 <title>VoidWorm</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -24,6 +25,10 @@
         <div class="hud-block hud-center">
           <span class="hud-label">PUNTOS</span>
           <span id="hud-score" class="hud-value">0</span>
+          <div id="hud-boss" class="hud-boss hidden">
+            <span class="hud-label">JEFE FINAL</span>
+            <div id="boss-pips" class="boss-pips"></div>
+          </div>
         </div>
         <div class="hud-block hud-right">
           <span id="hud-keys" class="hud-sub">↑ ↓ ← → mover &nbsp;·&nbsp; ESPACIO rage &nbsp;·&nbsp; P pausa &nbsp;·&nbsp; M sonido</span>
@@ -47,7 +52,7 @@
           </div>
           <span id="bar-rage-pct" class="bar-pct">0%</span>
         </div>
-        <div id="rage-hint" class="rage-hint">RAGE LISTO · PULSA <kbd>ESPACIO</kbd></div>
+        <div id="rage-hint" class="rage-hint">RAGE LISTO<span class="hint-key"> · PULSA <kbd>ESPACIO</kbd></span></div>
       </div>
     </div>
 
@@ -62,9 +67,10 @@
           <li>El <b>jefe</b> te persigue: si te alcanza, pierdes el nivel.</li>
           <li>Con la barra de rage llena pulsa <kbd>ESPACIO</kbd>: 15 s de inmunidad, +20 % de velocidad y ×2 de puntos.</li>
           <li>En Rage Mode el jefe <b>huye</b>. Devóralo y el nivel se completa al instante.</li>
+          <li>Hay <b>tres jefes</b>: el último aguanta <b>3 golpes</b>, y cada golpe consume una carga entera de rage.</li>
         </ul>
         <button id="btn-start" class="btn">INICIAR</button>
-        <p class="foot">Teclas direccionales para moverte</p>
+        <p class="foot"><span class="hint-key">Teclas direccionales para moverte</span><span class="hint-touch">Arrastra el pulgar para moverte</span></p>
       </section>
 
       <section id="screen-level" class="screen hidden">
@@ -72,14 +78,15 @@
         <h2 id="level-numeral" class="screen-numeral">I</h2>
         <p id="level-title" class="screen-title">CINTURÓN DE ENERGÍA</p>
         <p id="level-desc" class="screen-desc">Devora bolitas de energía</p>
-        <p class="screen-hint">Pulsa <kbd>ENTER</kbd> para empezar</p>
+        <p id="level-boss" class="screen-boss">JEFE: EL DEVORADOR</p>
+        <p class="screen-hint"><span class="hint-key">Pulsa <kbd>ENTER</kbd> para empezar</span><span class="hint-touch">Toca la pantalla para empezar</span></p>
       </section>
 
       <section id="screen-complete" class="screen hidden">
         <span class="screen-kicker">NIVEL COMPLETADO</span>
         <h2 id="complete-title" class="screen-numeral">I</h2>
         <p id="complete-reason" class="screen-desc">Barra de progreso al 100 %</p>
-        <p class="screen-hint">Pulsa <kbd>ENTER</kbd> para continuar</p>
+        <p class="screen-hint"><span class="hint-key">Pulsa <kbd>ENTER</kbd> para continuar</span><span class="hint-touch">Toca la pantalla para continuar</span></p>
       </section>
 
       <section id="screen-gameover" class="screen hidden">
@@ -87,7 +94,7 @@
         <h2 class="screen-numeral danger">EL VACÍO TE DEVORÓ</h2>
         <p id="gameover-desc" class="screen-desc">El jefe te alcanzó en el Nivel I</p>
         <button id="btn-retry" class="btn btn-danger">REINICIAR NIVEL</button>
-        <p class="screen-hint">Pulsa <kbd>ENTER</kbd></p>
+        <p class="screen-hint hint-key">Pulsa <kbd>ENTER</kbd></p>
       </section>
 
       <section id="screen-victory" class="screen hidden">
@@ -95,7 +102,7 @@
         <h2 class="screen-numeral">VOIDWORM COMPLETADO</h2>
         <p id="victory-score" class="screen-desc">Puntuación final: 0</p>
         <button id="btn-again" class="btn">JUGAR DE NUEVO</button>
-        <p class="screen-hint">Pulsa <kbd>ENTER</kbd></p>
+        <p class="screen-hint hint-key">Pulsa <kbd>ENTER</kbd></p>
       </section>
 
       <section id="screen-pause" class="screen hidden">
@@ -103,9 +110,24 @@
         <h2 class="screen-numeral">EN ÓRBITA</h2>
         <p class="screen-desc">El vacío espera.</p>
         <button id="btn-resume" class="btn">CONTINUAR</button>
-        <p class="screen-hint">Pulsa <kbd>P</kbd></p>
+        <p class="screen-hint hint-key">Pulsa <kbd>P</kbd></p>
       </section>
 
+      <!-- Solo en tactil vertical: la persecución necesita vista ancha -->
+      <section id="screen-orient" class="screen">
+        <span class="screen-kicker">VOIDWORM</span>
+        <h2 class="screen-numeral">GIRA EL DISPOSITIVO</h2>
+        <p class="screen-desc">El vacío se juega en horizontal</p>
+        <div class="orient-icon" aria-hidden="true"></div>
+      </section>
+
+    </div>
+
+    <!-- ====== CONTROLES TÁCTILES (solo en dispositivos táctiles) ====== -->
+    <div id="touch-ui" aria-hidden="true">
+      <div id="touch-stick"><div id="touch-knob"></div></div>
+      <button id="touch-rage" class="touch-btn" type="button">RAGE</button>
+      <button id="touch-pause" class="touch-btn" type="button">II</button>
     </div>
   </div>
 
@@ -120,6 +142,7 @@
   <script src="js/boss.js"></script>
   <script src="js/levels.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/touch.js"></script>
   <script src="js/game.js"></script>
   <script src="js/main.js"></script>
 </body>

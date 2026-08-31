@@ -68,6 +68,27 @@ body.playing #hud{opacity:1}
   transition:color .4s ease,text-shadow .4s ease;
 }
 .hud-sub{font-size:11px;color:rgba(233,246,255,.55);letter-spacing:.14em}
+
+/* Vida del jefe final: un indicador por golpe de rage necesario */
+.hud-boss{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:6px}
+.hud-boss.hidden{display:none}
+.boss-pips{display:flex;gap:6px}
+.boss-pip{
+  width:26px;height:7px;border-radius:4px;
+  background:linear-gradient(90deg,#ff7a3c,var(--danger));
+  box-shadow:0 0 12px rgba(255,75,92,.65);
+  transition:background .3s ease,box-shadow .3s ease,opacity .3s ease;
+}
+.boss-pip.spent{
+  background:rgba(233,246,255,.14);
+  box-shadow:none;opacity:.5;
+}
+
+.screen-boss{
+  font-size:11px;letter-spacing:.26em;
+  color:rgba(255,120,140,.85);
+  text-shadow:0 0 12px rgba(255,75,92,.35);
+}
 #hud-keys{font-size:10px;letter-spacing:.12em;color:rgba(233,246,255,.32);line-height:1.7}
 
 /* ---------- Barras ---------- */
@@ -217,4 +238,118 @@ kbd{
 @media (max-width:640px){
   .bar-name{width:56px;letter-spacing:.16em}
   #hud-keys{display:none}
+}
+
+/* ============================================================
+   CONTROLES TÁCTILES
+   Capa adicional: invisible e inerte en escritorio. Las teclas
+   direccionales siguen siendo el control principal.
+   ============================================================ */
+
+/* Pistas de texto: teclado por defecto, táctil cuando aplica */
+.hint-touch{display:none}
+body.touch .hint-key{display:none}
+body.touch .hint-touch{display:inline}
+
+body.touch{touch-action:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+body.touch #hud-keys{display:none}
+/* En táctil las barras suben arriba: el borde inferior queda libre
+   para el joystick fijo y el botón de RAGE */
+body.touch #hud{justify-content:flex-start;gap:12px}
+body.touch .hud-bottom{align-items:flex-start}
+body.touch .bar-row{width:min(420px,52vw)}
+body.touch .bar-name{width:64px;letter-spacing:.16em}
+body.touch #hud{padding:calc(12px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+
+/* Los controles sólo existen mientras se juega, igual que el HUD */
+#touch-ui{position:absolute;inset:0;display:none;pointer-events:none;z-index:5}
+body.touch.playing #touch-ui{display:block}
+body.touch.portrait #touch-ui{display:none}
+
+/* Joystick FIJO en la esquina inferior izquierda: siempre visible
+   mientras se juega, se ilumina al usarlo. */
+#touch-stick{
+  position:absolute;
+  left:calc(26px + env(safe-area-inset-left));
+  bottom:calc(26px + env(safe-area-inset-bottom));
+  width:150px;height:150px;
+  border-radius:50%;
+  border:1px solid rgba(95,245,255,.26);
+  background:radial-gradient(circle,rgba(95,245,255,.10),rgba(95,245,255,0) 72%);
+  opacity:.55;transition:opacity .16s ease,border-color .2s ease;
+}
+#touch-stick.on{opacity:1;border-color:rgba(95,245,255,.55)}
+#touch-knob{
+  position:absolute;left:50%;top:50%;
+  width:58px;height:58px;border-radius:50%;
+  transform:translate(-50%,-50%);
+  transition:transform .06s linear;
+  background:radial-gradient(circle,rgba(223,252,255,.92),rgba(95,245,255,.35) 60%,rgba(95,245,255,0) 100%);
+  box-shadow:0 0 22px rgba(95,245,255,.55);
+}
+body.rage #touch-stick{border-color:rgba(255,79,216,.45)}
+body.rage #touch-knob{
+  background:radial-gradient(circle,#fff,rgba(255,79,216,.45) 60%,rgba(255,79,216,0) 100%);
+  box-shadow:0 0 24px rgba(255,79,216,.6);
+}
+
+.touch-btn{
+  position:absolute;pointer-events:auto;
+  font-family:var(--ui-font);color:#eafcff;
+  background:rgba(140,200,255,.08);
+  border:1px solid rgba(140,200,255,.28);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .12s ease,background .2s ease,box-shadow .25s ease;
+}
+.touch-btn:active{transform:scale(.94)}
+
+#touch-rage{
+  right:calc(20px + env(safe-area-inset-right));
+  bottom:calc(24px + env(safe-area-inset-bottom));
+  width:104px;height:104px;
+  font-size:12px;font-weight:700;letter-spacing:.18em;
+  color:rgba(255,217,245,.65);
+  border-color:rgba(255,79,216,.35);
+}
+#touch-rage.ready{
+  color:#fff;
+  background:rgba(255,79,216,.26);
+  border-color:var(--magenta);
+  box-shadow:0 0 30px rgba(255,79,216,.55);
+  animation:barPulse 1s ease-in-out infinite;
+}
+#touch-rage.active{
+  color:#1a0010;
+  background:linear-gradient(180deg,var(--gold),var(--magenta));
+  border-color:transparent;
+  box-shadow:0 0 34px rgba(255,79,216,.6);
+}
+#touch-pause{
+  right:calc(20px + env(safe-area-inset-right));
+  top:calc(56px + env(safe-area-inset-top));
+  width:44px;height:44px;
+  font-size:13px;letter-spacing:.1em;
+}
+
+/* Aviso de orientación: sólo en táctil vertical.
+   No forma parte del mapa de pantallas del UIManager. */
+/* Opaco: sustituye por completo a lo que haya debajo */
+#screen-orient{display:none;z-index:20;background:#04030c;backdrop-filter:none}
+body.touch.portrait #screen-orient{display:flex}
+.orient-icon{
+  width:52px;height:84px;margin-top:10px;
+  border:2px solid rgba(95,245,255,.6);border-radius:9px;
+  box-shadow:0 0 20px rgba(95,245,255,.35);
+  animation:orientTurn 2.2s ease-in-out infinite;
+}
+@keyframes orientTurn{
+  0%,35%{transform:rotate(0)}
+  65%,100%{transform:rotate(-90deg)}
+}
+
+/* Alturas dinámicas: evita el salto por la barra de URL del móvil */
+@supports (height:100dvh){
+  html,body{height:100dvh}
+  #stage{height:100dvh}
 }

@@ -22,7 +22,11 @@
         rageFill: $('bar-rage-fill'),
         ragePct: $('bar-rage-pct'),
         rageHint: $('rage-hint'),
+        touchRage: $('touch-rage'),
+        bossHud: $('hud-boss'),
+        bossPips: $('boss-pips'),
         levelNumeral: $('level-numeral'),
+        levelBoss: $('level-boss'),
         levelTitle: $('level-title'),
         levelDesc: $('level-desc'),
         completeTitle: $('complete-title'),
@@ -40,7 +44,10 @@
         pause: $('screen-pause')
       };
 
-      this.cache = { score: -1, prog: -1, rage: -1, rageState: '', screen: '' };
+      this.cache = {
+        score: -1, prog: -1, rage: -1, rageState: '', screen: '',
+        bossHits: -1, bossMax: -1
+      };
 
       /* Listeners de botones: se registran una sola vez. */
       $('btn-start').addEventListener('click', handlers.onStart);
@@ -100,13 +107,55 @@
         this.el.rageBar.classList.toggle('ready', state === 'ready');
         this.el.rageBar.classList.toggle('active', state === 'active');
         this.el.rageHint.classList.toggle('show', state === 'ready');
+        /* El boton tactil de RAGE refleja el mismo estado que la barra. */
+        if (this.el.touchRage) {
+          this.el.touchRage.classList.toggle('ready', state === 'ready');
+          this.el.touchRage.classList.toggle('active', state === 'active');
+        }
       }
     }
 
-    levelIntro(level) {
+    levelIntro(level, boss) {
       this.el.levelNumeral.textContent = level.numeral;
       this.el.levelTitle.textContent = level.title;
       this.el.levelDesc.textContent = 'Devora ' + level.foodLabel.toLowerCase();
+      if (this.el.levelBoss && boss) {
+        this.el.levelBoss.textContent = boss.maxHits > 1
+          ? 'JEFE: ' + boss.name + ' · ' + boss.maxHits + ' GOLPES DE RAGE'
+          : 'JEFE: ' + boss.name;
+      }
+    }
+
+    /* Vida del jefe: solo se muestra si aguanta mas de un golpe. */
+    setBossHits(hits, maxHits) {
+      const wrap = this.el.bossHud;
+      if (!wrap) return;
+
+      if (maxHits <= 1) {
+        wrap.classList.add('hidden');
+        this.cache.bossMax = maxHits;
+        this.cache.bossHits = hits;
+        return;
+      }
+      wrap.classList.remove('hidden');
+
+      /* Los indicadores se construyen una sola vez por nivel. */
+      if (this.cache.bossMax !== maxHits) {
+        this.cache.bossMax = maxHits;
+        this.el.bossPips.innerHTML = '';
+        for (let i = 0; i < maxHits; i++) {
+          const pip = document.createElement('span');
+          pip.className = 'boss-pip';
+          this.el.bossPips.appendChild(pip);
+        }
+      }
+      if (this.cache.bossHits === hits) return;
+      this.cache.bossHits = hits;
+
+      const pips = this.el.bossPips.children;
+      for (let i = 0; i < pips.length; i++) {
+        pips[i].classList.toggle('spent', i >= hits);
+      }
     }
 
     levelComplete(level, reason) {

@@ -24,6 +24,7 @@
 
   const CONFIRM = ['Enter', 'Space', 'NumpadEnter'];
   const MAX_DT = 0.05;          /* 50 ms: evita saltos tras cambiar de pestana */
+  const VIEW_TARGET = 1050;     /* ancho de mundo visible deseado, en px */
   const INTRO_TIME = 2.4;
   const DEATH_HOLD = 0.9;
   const COMPLETE_HOLD = 0.85;
@@ -36,7 +37,10 @@
       this.audio = audio;
       this.ui = ui;
 
-      this.dpr = 1;
+      this.dpr = 0;
+      this._lastW = 0;
+      this._lastH = 0;
+      this.zoom = 1;
       this.cam = { x: 0, y: 0, w: canvas.clientWidth || 960, h: canvas.clientHeight || 540 };
       this.drawCam = { x: 0, y: 0, w: this.cam.w, h: this.cam.h };
       this.world = { w: 2400, h: 1700 };
@@ -80,17 +84,34 @@
 
     resize() {
       const c = this.canvas;
-      const w = c.clientWidth || window.innerWidth;
-      const h = c.clientHeight || window.innerHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      /* Reservas por si el canvas aun no tiene tamano (contenedor oculto):
+         nunca se debe dimensionar el mundo a cero. */
+      const w = Math.max(1, c.clientWidth || window.innerWidth || 960);
+      const h = Math.max(1, c.clientHeight || window.innerHeight || 540);
+      const dpr = Math.min(window.devicePixelRatio || 1, VW.QUALITY.dprCap);
+
+      /* Sin cambios reales no se toca el canvas: asignar width/height
+         borraria el frame actual en cada aviso de redimension. */
+      if (w === this._lastW && h === this._lastH && dpr === this.dpr) return;
+      this._lastW = w;
+      this._lastH = h;
       this.dpr = dpr;
       c.width = Math.floor(w * dpr);
       c.height = Math.floor(h * dpr);
-      this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      this.cam.w = w;
-      this.cam.h = h;
-      this.drawCam.w = w;
-      this.drawCam.h = h;
+
+      /* Zoom de camara: en pantallas estrechas (moviles, ventanas
+         pequenas) se aleja la vista para que el area de mundo visible
+         sea comparable a la de escritorio. Sin esto el jefe apareceria
+         encima del jugador sin margen de reaccion. */
+      const zoom = U.clamp(w / VIEW_TARGET, 0.62, 1);
+      this.zoom = zoom;
+      this.ctx.setTransform(dpr * zoom, 0, 0, dpr * zoom, 0, 0);
+
+      /* La camara trabaja en unidades de mundo, no en pixeles CSS. */
+      this.cam.w = w / zoom;
+      this.cam.h = h / zoom;
+      this.drawCam.w = this.cam.w;
+      this.drawCam.h = this.cam.h;
     }
 
     _clampCam() {
@@ -159,6 +180,7 @@
       this.ui.setRage(0, 'idle', 0);
       this.ui.setScore(this.score);
       this.ui.setRageStyle(false);
+      this.ui.setBossHits(this.boss.hits, this.boss.maxHits);
     }
 
     /* Nueva partida completa desde el Nivel I. */
@@ -173,7 +195,7 @@
       this.scoreAtLevelStart = this.score;
       this.state = STATE.LEVEL_INTRO;
       this.introT = INTRO_TIME;
-      this.ui.levelIntro(this.level);
+      this.ui.levelIntro(this.level, this.boss);
       this.ui.showScreen('level');
       this.ui.setPlaying(true);
     }
@@ -341,16 +363,30 @@
       if (b.devoured) return;
 
       if (this.rage.active) {
-        /* Solo en Rage Mode se puede devorar al jefe. */
-        if (U.hit(p.x, p.y, p.headR + 4, b.x, b.y, b.r * 0.85)) {
-          b.devour();
+        /* Solo en Rage Mode se puede golpear o devorar al jefe. */
+        if (!U.hit(p.x, p.y, p.headR + 4, b.x, b.y, b.r * 0.85)) return;
+
+        const res = b.takeHit(p.x, p.y);
+
+        if (res === 'dead') {
           this.shake = 26;
           this.flash = 0.8;
           this.particles.burst(b.x, b.y, 120, 300, 520, 1.2);
           this.particles.burst(b.x, b.y, 60, 190, 300, 1.4);
           this.audio.devour();
           this.score += 250;
+          this.ui.setBossHits(0, b.maxHits);
           this._completeLevel('Jefe devorado en Rage Mode');
+        } else if (res === 'hurt') {
+          /* El jefe final aguanta varios golpes: cada impacto gasta la
+             carga de Rage completa, asi que hay que volver a llenarla. */
+          this.shake = 20;
+          this.flash = 0.7;
+          this.particles.burst(b.x, b.y, 80, b.def.hue, 460, 1.0);
+          this.audio.bossHit();
+          this.score += 120;
+          this.ui.setBossHits(b.hits, b.maxHits);
+          this._stopRage(false);
         }
         return;
       }

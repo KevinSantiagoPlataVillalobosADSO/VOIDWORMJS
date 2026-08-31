@@ -73,12 +73,10 @@
     update(dt, input, particles) {
       this.time += dt;
 
-      /* --- Entrada: solo teclas direccionales --- */
-      let ix = 0, iy = 0;
-      if (input.down('ArrowLeft')) ix -= 1;
-      if (input.down('ArrowRight')) ix += 1;
-      if (input.down('ArrowUp')) iy -= 1;
-      if (input.down('ArrowDown')) iy += 1;
+      /* --- Entrada: teclas direccionales (o joystick tactil, que
+             entrega los mismos 8 vectores) --- */
+      const ax = input.axis();
+      const ix = ax.x, iy = ax.y;
 
       const len = Math.hypot(ix, iy);
       const sp = this.speed;
@@ -120,7 +118,7 @@
       /* --- Particulas: solo en Rage Mode hay rastro luminoso --- */
       if (this.rageActive && particles) {
         this._trailAcc += dt;
-        const interval = 0.018;
+        const interval = VW.QUALITY.trail;
         let n = 0;
         while (this._trailAcc >= interval && n++ < 4) {
           this._trailAcc -= interval;

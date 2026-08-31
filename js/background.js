@@ -30,9 +30,11 @@
       this.world.h = world.h;
       this.stars.length = 0;
 
+      const q = VW.QUALITY.stars;
       for (let l = 0; l < LAYERS.length; l++) {
         const L = LAYERS[l];
-        for (let i = 0; i < L.count; i++) {
+        const count = Math.round(L.count * q);
+        for (let i = 0; i < count; i++) {
           this.stars.push({
             x: U.rand(0, world.w),
             y: U.rand(0, world.h),
