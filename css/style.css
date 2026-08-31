@@ -1,0 +1,220 @@
+/* ============================================================
+   VoidWorm — estilos de interfaz (HUD, barras, pantallas)
+   El mundo del juego se dibuja en <canvas>; aquí sólo capas UI.
+   ============================================================ */
+
+:root{
+  --cyan:#5ff5ff;
+  --cyan-dim:#1a6f7a;
+  --violet:#a06bff;
+  --magenta:#ff4fd8;
+  --gold:#ffd35c;
+  --danger:#ff4b5c;
+  --ink:#04030c;
+  --ui-font:"Trebuchet MS","Segoe UI",Tahoma,sans-serif;
+  --accent:var(--cyan);
+  --glow:0 0 12px rgba(95,245,255,.55);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+html,body{height:100%;overflow:hidden}
+
+body{
+  background:var(--ink);
+  color:#e9f6ff;
+  font-family:var(--ui-font);
+  letter-spacing:.06em;
+  -webkit-font-smoothing:antialiased;
+  cursor:default;
+  user-select:none;
+}
+
+/* ---------- Escenario ---------- */
+#stage{position:fixed;inset:0}
+#game-canvas{display:block;width:100%;height:100%}
+
+#vignette{
+  position:absolute;inset:0;pointer-events:none;
+  box-shadow:inset 0 0 24vmin 6vmin rgba(2,0,10,.85);
+  transition:box-shadow .6s ease;
+}
+body.rage #vignette{
+  box-shadow:inset 0 0 26vmin 5vmin rgba(0,0,0,.92),
+             inset 0 0 6vmin 0 rgba(255,79,216,.20);
+}
+
+/* ---------- HUD ---------- */
+#hud{
+  position:absolute;inset:0;
+  pointer-events:none;
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:18px 22px 20px;
+  opacity:0;transition:opacity .35s ease;
+}
+body.playing #hud{opacity:1}
+
+.hud-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.hud-block{display:flex;flex-direction:column;gap:2px}
+.hud-center{align-items:center}
+.hud-right{align-items:flex-end;max-width:38%;text-align:right}
+
+.hud-label{
+  font-size:10px;letter-spacing:.32em;color:rgba(233,246,255,.45);
+}
+.hud-value{
+  font-size:26px;font-weight:700;line-height:1;
+  color:var(--accent);text-shadow:var(--glow);
+  transition:color .4s ease,text-shadow .4s ease;
+}
+.hud-sub{font-size:11px;color:rgba(233,246,255,.55);letter-spacing:.14em}
+#hud-keys{font-size:10px;letter-spacing:.12em;color:rgba(233,246,255,.32);line-height:1.7}
+
+/* ---------- Barras ---------- */
+.hud-bottom{display:flex;flex-direction:column;gap:9px;align-items:center}
+
+.bar-row{
+  display:flex;align-items:center;gap:12px;
+  width:min(680px,86vw);
+}
+.bar-name{
+  font-size:9.5px;letter-spacing:.28em;width:76px;text-align:right;
+  color:rgba(233,246,255,.5);
+}
+.bar-pct{font-size:11px;width:46px;color:rgba(233,246,255,.6);font-variant-numeric:tabular-nums}
+
+.bar{
+  position:relative;flex:1;height:13px;
+  background:rgba(140,200,255,.08);
+  border:1px solid rgba(140,200,255,.22);
+  border-radius:8px;overflow:hidden;
+}
+.bar-fill{
+  position:absolute;inset:0 auto 0 0;width:0%;
+  border-radius:7px;
+  transition:width .18s linear;
+}
+.bar-gloss{
+  position:absolute;inset:0;border-radius:7px;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 55%);
+}
+
+.bar-progress .bar-fill{
+  background:linear-gradient(90deg,#1e8fa8,var(--cyan));
+  box-shadow:0 0 14px rgba(95,245,255,.6);
+}
+.bar-rage .bar-fill{
+  background:linear-gradient(90deg,#7a2ec9,var(--magenta));
+  box-shadow:0 0 14px rgba(255,79,216,.55);
+}
+
+/* rage cargado: la barra late */
+.bar-rage.ready{animation:barPulse 1s ease-in-out infinite}
+@keyframes barPulse{
+  0%,100%{border-color:rgba(255,79,216,.35);box-shadow:0 0 0 rgba(255,79,216,0)}
+  50%{border-color:rgba(255,79,216,.95);box-shadow:0 0 18px rgba(255,79,216,.55)}
+}
+/* rage activo: la barra se vacía como cronómetro */
+.bar-rage.active .bar-fill{
+  background:linear-gradient(90deg,var(--gold),var(--magenta),var(--cyan));
+  background-size:200% 100%;
+  animation:rageSlide .9s linear infinite;
+}
+@keyframes rageSlide{from{background-position:0 0}to{background-position:200% 0}}
+
+.rage-hint{
+  font-size:10.5px;letter-spacing:.24em;color:var(--magenta);
+  text-shadow:0 0 10px rgba(255,79,216,.7);
+  height:14px;opacity:0;transition:opacity .3s ease;
+}
+.rage-hint.show{opacity:1;animation:hintBlink 1.05s ease-in-out infinite}
+@keyframes hintBlink{0%,100%{opacity:.35}50%{opacity:1}}
+
+/* acento global durante rage */
+body.rage{--accent:var(--magenta);--glow:0 0 14px rgba(255,79,216,.7)}
+
+/* ---------- Pantallas de estado ---------- */
+#screens{position:absolute;inset:0}
+
+.screen{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;padding:6vh 8vw;text-align:center;
+  background:radial-gradient(ellipse at center,rgba(6,4,22,.86),rgba(2,1,8,.96));
+  backdrop-filter:blur(2px);
+  animation:screenIn .3s ease both;
+}
+.screen.hidden{display:none}
+@keyframes screenIn{from{opacity:0;transform:scale(1.015)}to{opacity:1;transform:none}}
+
+.logo{
+  font-size:clamp(48px,11vw,124px);font-weight:800;line-height:.92;
+  letter-spacing:.06em;
+  color:#eafcff;
+  text-shadow:0 0 22px rgba(95,245,255,.55),0 0 60px rgba(160,107,255,.35);
+}
+.logo span{
+  color:var(--magenta);
+  text-shadow:0 0 22px rgba(255,79,216,.6),0 0 70px rgba(255,79,216,.3);
+}
+.tagline{font-size:13.5px;color:rgba(233,246,255,.62);letter-spacing:.18em;max-width:44ch}
+
+.rules{
+  list-style:none;display:flex;flex-direction:column;gap:7px;
+  font-size:12.5px;line-height:1.55;color:rgba(233,246,255,.7);
+  max-width:60ch;text-align:left;letter-spacing:.04em;
+  border-left:2px solid rgba(95,245,255,.35);
+  padding:2px 0 2px 16px;margin:6px 0;
+}
+.rules b{color:var(--cyan);font-weight:600}
+
+.screen-kicker{
+  font-size:10.5px;letter-spacing:.44em;color:rgba(95,245,255,.75);
+}
+.screen-kicker.danger{color:rgba(255,75,92,.9)}
+.screen-numeral{
+  font-size:clamp(30px,6.4vw,64px);font-weight:800;letter-spacing:.1em;
+  color:#eafcff;text-shadow:0 0 24px rgba(95,245,255,.45);
+}
+.screen-numeral.danger{
+  font-size:clamp(22px,4.4vw,44px);
+  text-shadow:0 0 24px rgba(255,75,92,.5);
+}
+.screen-title{font-size:15px;letter-spacing:.3em;color:var(--cyan)}
+.screen-desc{font-size:13px;color:rgba(233,246,255,.66);letter-spacing:.12em}
+.screen-hint{font-size:10.5px;color:rgba(233,246,255,.4);letter-spacing:.22em;margin-top:4px}
+.foot{font-size:10.5px;color:rgba(233,246,255,.35);letter-spacing:.22em}
+
+kbd{
+  font-family:var(--ui-font);font-size:.95em;
+  border:1px solid rgba(233,246,255,.3);border-bottom-width:2px;
+  border-radius:4px;padding:1px 6px;color:#eafcff;
+  background:rgba(233,246,255,.07);
+}
+
+.btn{
+  pointer-events:auto;cursor:pointer;
+  margin-top:8px;padding:13px 40px;
+  font-family:var(--ui-font);font-size:13px;font-weight:700;letter-spacing:.28em;
+  color:#04121a;
+  background:linear-gradient(180deg,#9df9ff,var(--cyan));
+  border:0;border-radius:999px;
+  box-shadow:0 0 26px rgba(95,245,255,.45);
+  transition:transform .15s ease,box-shadow .25s ease,filter .2s ease;
+}
+.btn:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 0 40px rgba(95,245,255,.65)}
+.btn:active{transform:translateY(0) scale(.99)}
+.btn:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.btn-danger{
+  background:linear-gradient(180deg,#ff9aa4,var(--danger));
+  color:#1a0207;box-shadow:0 0 26px rgba(255,75,92,.45);
+}
+.btn-danger:hover{box-shadow:0 0 40px rgba(255,75,92,.6)}
+
+/* Pantallas sin bloqueo del canvas cuando no hay botón */
+#screen-level,#screen-complete{pointer-events:none}
+
+@media (max-width:640px){
+  .bar-name{width:56px;letter-spacing:.16em}
+  #hud-keys{display:none}
+}

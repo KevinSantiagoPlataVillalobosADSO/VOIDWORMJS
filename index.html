@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VoidWorm</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="state-menu">
+
+  <!-- ====== ESCENARIO ====== -->
+  <div id="stage">
+    <canvas id="game-canvas"></canvas>
+    <div id="vignette" aria-hidden="true"></div>
+
+    <!-- ====== HUD ====== -->
+    <div id="hud">
+      <div class="hud-top">
+        <div class="hud-block hud-left">
+          <span class="hud-label">NIVEL</span>
+          <span id="hud-level" class="hud-value">I</span>
+          <span id="hud-food" class="hud-sub">Bolitas de energía</span>
+        </div>
+        <div class="hud-block hud-center">
+          <span class="hud-label">PUNTOS</span>
+          <span id="hud-score" class="hud-value">0</span>
+        </div>
+        <div class="hud-block hud-right">
+          <span id="hud-keys" class="hud-sub">↑ ↓ ← → mover &nbsp;·&nbsp; ESPACIO rage &nbsp;·&nbsp; P pausa &nbsp;·&nbsp; M sonido</span>
+        </div>
+      </div>
+
+      <div class="hud-bottom">
+        <div class="bar-row">
+          <span class="bar-name">PROGRESO</span>
+          <div class="bar bar-progress">
+            <div id="bar-progress-fill" class="bar-fill"></div>
+            <div class="bar-gloss"></div>
+          </div>
+          <span id="bar-progress-pct" class="bar-pct">0%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-name">RAGE</span>
+          <div id="bar-rage" class="bar bar-rage">
+            <div id="bar-rage-fill" class="bar-fill"></div>
+            <div class="bar-gloss"></div>
+          </div>
+          <span id="bar-rage-pct" class="bar-pct">0%</span>
+        </div>
+        <div id="rage-hint" class="rage-hint">RAGE LISTO · PULSA <kbd>ESPACIO</kbd></div>
+      </div>
+    </div>
+
+    <!-- ====== PANTALLAS / ESTADOS ====== -->
+    <div id="screens">
+
+      <section id="screen-menu" class="screen">
+        <h1 class="logo">VOID<span>WORM</span></h1>
+        <p class="tagline">Un gusano galáctico. Cinco niveles. Un depredador que no se cansa.</p>
+        <ul class="rules">
+          <li><b>Come</b> para llenar la barra de <b>progreso</b> y la de <b>rage</b>.</li>
+          <li>El <b>jefe</b> te persigue: si te alcanza, pierdes el nivel.</li>
+          <li>Con la barra de rage llena pulsa <kbd>ESPACIO</kbd>: 15 s de inmunidad, +20 % de velocidad y ×2 de puntos.</li>
+          <li>En Rage Mode el jefe <b>huye</b>. Devóralo y el nivel se completa al instante.</li>
+        </ul>
+        <button id="btn-start" class="btn">INICIAR</button>
+        <p class="foot">Teclas direccionales para moverte</p>
+      </section>
+
+      <section id="screen-level" class="screen hidden">
+        <span class="screen-kicker">NIVEL</span>
+        <h2 id="level-numeral" class="screen-numeral">I</h2>
+        <p id="level-title" class="screen-title">CINTURÓN DE ENERGÍA</p>
+        <p id="level-desc" class="screen-desc">Devora bolitas de energía</p>
+        <p class="screen-hint">Pulsa <kbd>ENTER</kbd> para empezar</p>
+      </section>
+
+      <section id="screen-complete" class="screen hidden">
+        <span class="screen-kicker">NIVEL COMPLETADO</span>
+        <h2 id="complete-title" class="screen-numeral">I</h2>
+        <p id="complete-reason" class="screen-desc">Barra de progreso al 100 %</p>
+        <p class="screen-hint">Pulsa <kbd>ENTER</kbd> para continuar</p>
+      </section>
+
+      <section id="screen-gameover" class="screen hidden">
+        <span class="screen-kicker danger">GAME OVER</span>
+        <h2 class="screen-numeral danger">EL VACÍO TE DEVORÓ</h2>
+        <p id="gameover-desc" class="screen-desc">El jefe te alcanzó en el Nivel I</p>
+        <button id="btn-retry" class="btn btn-danger">REINICIAR NIVEL</button>
+        <p class="screen-hint">Pulsa <kbd>ENTER</kbd></p>
+      </section>
+
+      <section id="screen-victory" class="screen hidden">
+        <span class="screen-kicker">VICTORIA</span>
+        <h2 class="screen-numeral">VOIDWORM COMPLETADO</h2>
+        <p id="victory-score" class="screen-desc">Puntuación final: 0</p>
+        <button id="btn-again" class="btn">JUGAR DE NUEVO</button>
+        <p class="screen-hint">Pulsa <kbd>ENTER</kbd></p>
+      </section>
+
+      <section id="screen-pause" class="screen hidden">
+        <span class="screen-kicker">PAUSA</span>
+        <h2 class="screen-numeral">EN ÓRBITA</h2>
+        <p class="screen-desc">El vacío espera.</p>
+        <button id="btn-resume" class="btn">CONTINUAR</button>
+        <p class="screen-hint">Pulsa <kbd>P</kbd></p>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ====== LÓGICA ====== -->
+  <script src="js/utils.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/background.js"></script>
+  <script src="js/food.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/boss.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
