@@ -353,3 +353,7 @@ body.touch.portrait #screen-orient{display:flex}
   html,body{height:100dvh}
   #stage{height:100dvh}
 }
+
+/* Todo el CSS fue desarrollado directamente en prueba y error y luego auditado :b */
+
+/* Nota, los elementos creados con canvas van apartados del css, solo algunas especificas cuentan con su estilo aqui */
