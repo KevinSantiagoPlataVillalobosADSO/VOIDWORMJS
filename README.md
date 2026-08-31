@@ -198,8 +198,8 @@ reproducción automática de los navegadores.
 
 ## Autoría
 
-- **Kevin Plata** — concepto, diseño de juego, especificación funcional y dirección del proyecto.
-- **Claude (Anthropic)** — desarrollo, implementación y pruebas.
+- **Kevin Plata** — concepto, diseño de juego, desarrollo, especificación funcional y dirección del proyecto.
+- **Claude (Anthropic)** — Apoyo en desarollo, auditor, implementación y pruebas.
 
 Documentación del proceso completo en [DESARROLLO.md](DESARROLLO.md).
 
@@ -207,5 +207,4 @@ Documentación del proceso completo en [DESARROLLO.md](DESARROLLO.md).
 
 ## Licencia
 
-Proyecto personal sin licencia definida todavía. Si vas a publicarlo o compartirlo,
-añade aquí la licencia que prefieras.
+Proyecto personal sin licencia definida todavía. :b
